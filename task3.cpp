@@ -33,19 +33,19 @@ void task3()
     };
     static TaskStates taskState = TaskStates::INIT;
 
-    static uint8_t led = 25; // Declaro la posición de la led
+    static uint8_t led = 25; 
 
     static uint32_t lasTime;
-    static constexpr uint32_t SLOW_TIME = 500;   // Cantidad de tiempo que se demora
-    static constexpr uint32_t MEDIUM_TIME = 250; // Cantidad de tiempo que se demora
-    static constexpr uint32_t FAST_TIME = 125;   // Cantidad de tiempo que se demora
+    static constexpr uint32_t SLOW_TIME = 500;   
+    static constexpr uint32_t MEDIUM_TIME = 250; 
+    static constexpr uint32_t FAST_TIME = 125;   
 
     static bool ledStatus = false;
-    static bool if_off = false; // Variable para preguntar si la led esta apagada o si la led estaba prendida
+    static bool if_off = false; 
 
     static BUTTONS secret[5] = {BUTTONS::ONE_BTN, BUTTONS::ONE_BTN,
                                 BUTTONS::TWO_BTN, BUTTONS::TWO_BTN,
-                                BUTTONS::ONE_BTN}; // Codigo para salir del modo rapido
+                                BUTTONS::ONE_BTN}; 
 
     static BUTTONS backkey[5] = {BUTTONS::NONE};
 
@@ -55,9 +55,10 @@ void task3()
     {
     case TaskStates::INIT:
     {
+        ledStatus = LOW;
         pinMode(led, OUTPUT);
-        digitalWrite(led, LOW);
-
+        digitalWrite(led, ledStatus);
+        lasTime = 0;
         taskState = TaskStates::SLOW;
         break;
     }
@@ -77,10 +78,16 @@ void task3()
             buttonEvt.trigger = false;
             if (buttonEvt.whichButton == BUTTONS::ONE_BTN)
             {
+                ledStatus = HIGH;
+                pinMode(led, OUTPUT);
+                digitalWrite(led, ledStatus);
                 taskState = TaskStates::WAIT_OFF;
             }
             else if (buttonEvt.whichButton == BUTTONS::TWO_BTN)
             {
+                ledStatus = LOW;
+                pinMode(led, OUTPUT);
+                digitalWrite(led, ledStatus);
                 taskState = TaskStates::MEDIUM;
             }
         }
@@ -93,6 +100,7 @@ void task3()
         if ((currentTime - lasTime) >= SLOW_TIME)
         {
             ledStatus = false;
+            pinMode(led, OUTPUT);
             digitalWrite(led, ledStatus);
             taskState = TaskStates::PERM_OFF;
         }
@@ -104,11 +112,17 @@ void task3()
             buttonEvt.trigger = false;
             if (buttonEvt.whichButton == BUTTONS::ONE_BTN)
             {
+                ledStatus = LOW;
+                pinMode(led, OUTPUT);
+                digitalWrite(led, ledStatus);
                 taskState = TaskStates::SLOW;
             }
             else if (buttonEvt.whichButton == BUTTONS::TWO_BTN)
             {
                 if_off = true;
+                ledStatus = LOW;
+                pinMode(led, OUTPUT);
+                digitalWrite(led, ledStatus);
                 taskState = TaskStates::FAST;
             }
         }
@@ -129,11 +143,16 @@ void task3()
             buttonEvt.trigger = false;
             if (buttonEvt.whichButton == BUTTONS::ONE_BTN)
             {
+                ledStatus = LOW;
+                pinMode(led, OUTPUT);
+                digitalWrite(led, ledStatus);
                 taskState = TaskStates::WAIT_ON;
-                    
             }
             else if (buttonEvt.whichButton == BUTTONS::TWO_BTN)
             {
+                ledStatus = LOW;
+                pinMode(led, OUTPUT);
+                digitalWrite(led, ledStatus);
                 taskState = TaskStates::SLOW;
             }
         }  
@@ -144,8 +163,9 @@ void task3()
     {
         uint32_t currentTime = millis();
          if ((currentTime - lasTime) >= MEDIUM_TIME)
-         {
+         { 
             ledStatus = true;
+            pinMode(led, OUTPUT);
             digitalWrite(led, ledStatus);
             taskState = TaskStates::PERM_ON;
          }
@@ -158,11 +178,17 @@ void task3()
             buttonEvt.trigger = false;
             if (buttonEvt.whichButton == BUTTONS::ONE_BTN)
             {
+                ledStatus = LOW;
+                pinMode(led, OUTPUT);
+                digitalWrite(led, ledStatus);
                 taskState = TaskStates::MEDIUM;
             }
             else if (buttonEvt.whichButton == BUTTONS::TWO_BTN)
             {
                 if_off = false;
+                ledStatus = LOW;
+                pinMode(led, OUTPUT);
+                digitalWrite(led, ledStatus);
                 taskState = TaskStates::FAST;
             }
         }
@@ -189,20 +215,20 @@ void task3()
                 keyCounter = 0;
                 if (compareKeys(secret, backkey) == true)
                 {
-                    Serial.print("Regresar al modo anterior\n");
-
                     if (if_off == true)
                     {
-                        taskState = TaskStates::PERM_OFF; // Si estaba apagado, regresa a estar apagado
+                        ledStatus = HIGH;
+                        pinMode(led, OUTPUT);
+                        digitalWrite(led, ledStatus);
+                        taskState = TaskStates::PERM_OFF; 
                     }
                     else
                     {
-                        taskState = TaskStates::PERM_ON; // Si estaba prendido, regresa a estar prendido
+                        ledStatus = LOW;
+                        pinMode(led, OUTPUT);
+                        digitalWrite(led, ledStatus);
+                        taskState = TaskStates::PERM_ON; 
                     }
-                }
-                else
-                {
-                    Serial.print("Lo lamento, te equivocaste.\n");
                 }
             }
         }
